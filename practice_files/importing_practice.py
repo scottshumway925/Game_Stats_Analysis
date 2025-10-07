@@ -15,3 +15,7 @@ try:
     print(df.loc[pokemon])
 except KeyError:
     print(f"{pokemon} not found")
+
+df.head()
+df.describe()
+df.info()

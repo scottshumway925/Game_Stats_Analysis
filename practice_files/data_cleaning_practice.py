@@ -8,7 +8,6 @@ df = pd.read_csv("pokemon_stats.csv", index_col="Name")
 # df["Type1"] = df["Type1"].replace({"Grass": "GRASS", "Fire": "FIRE", "Water": "WATER"})
 # df["Type1"] = df["Type1"].str.lower()
 # df["Legendary"] = df["Legendary"].astype(bool)
-
-df = df.drop_duplicates()
+# df = df.drop_duplicates()
 
 print(df.to_string())
