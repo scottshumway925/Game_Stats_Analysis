@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("pokemon_stats.csv", index_col="Name")
+df = pd.read_csv("practice_files/pokemon_stats.csv", index_col="Name")
 
 # Applies to the whole dataframe
 print(df.mean(numeric_only=True))
