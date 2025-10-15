@@ -10,21 +10,37 @@ for game in data:
     mechanisms = game.get("game_info", {}).get("mechanisms", [])
     ownership_number = game.get("collection_stats", {}).get("own", [])
 
+    ratings = game.get("ratings", {})
+    rating_counts = [ratings.get(f"rated_{i}", 0) for i in range(1, 11)]
+
+    total_ratings = sum(rating_counts)
+    if total_ratings > 0:
+        weighted_avg = sum(r * c for r, c in zip(range(1, 11), rating_counts)) / total_ratings
+    else:
+        weighted_avg = 0
+
     rows.append({
         "boardgame": boardgame_name,
         "mechanisms": mechanisms,
-        "ownership_numbers": ownership_number
+        "ownership_numbers": ownership_number,
+        "average_rating": weighted_avg
     })
 
 df = pd.DataFrame(rows)
 
 df = df.explode("mechanisms")
 
-df_grouped = df.groupby("mechanisms").agg(
-    game_count=("mechanisms", "count"),
-    average_ownership=("ownership_numbers", "mean")
-).sort_values(by="game_count", ascending=False)
+df_analysis = df.groupby("boardgame").agg(
+    average_rating=("average_rating", "mean"),
+    average_ownership=("ownership_numbers", "mean"),
+    complexity_count=("mechanisms", "count"),
+    mechanisms=("mechanisms", lambda s: ", ".join(sorted({m for m in s if pd.notna(m)})))
+).sort_values(by="average_rating", ascending=False)
 
+df_analysis["mechanisms"] = df_analysis["mechanisms"].fillna("")
 
-df_grouped = df_grouped.round(0).astype(int)
-print(df_grouped.to_string())
+filtered_db = df_analysis[df_analysis["average_rating"] >= 8]
+filtered_db = filtered_db[filtered_db["average_ownership"] >= 10000]
+filtered_db = filtered_db.round(2)
+
+print(filtered_db[["average_rating", "average_ownership", "mechanisms"]].to_string())
